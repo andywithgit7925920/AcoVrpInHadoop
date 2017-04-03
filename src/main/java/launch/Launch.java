@@ -1,6 +1,7 @@
 package launch;
 
 import acs.ACO;
+
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -57,7 +58,9 @@ public class Launch {
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 
-        String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+		String[] otherArgs = new String[]{
+				 "hdfs://localhost:9000/user/hadoop/input",
+				 "hdfs://localhost:9000/user/hadoop/output"};
 
         if (otherArgs.length != 2) {
             System.err.println("Usage: wordcount <in> <out>");
