@@ -43,7 +43,8 @@ public class WordCount {
     }
 
     public static void main(String[] args) throws Exception {
-
+    	org.apache.log4j.LogManager.resetConfiguration();
+        org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
         Configuration conf = new Configuration();
 
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
