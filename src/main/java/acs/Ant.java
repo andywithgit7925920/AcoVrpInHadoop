@@ -270,7 +270,7 @@ public class Ant {
 	    }
 
 	    //@Override
-	   /*public String toString() {
+	   public String toString() {
 	        return "Ant{" +
 	        		"id=" + this.id +
 	                "solution=" + solution +
@@ -278,9 +278,5 @@ public class Ant {
 	                ", visitedClient=" + Arrays.toString(visitedClient) +
 	                ", delta=" + Arrays.toString(delta) +
 	                '}';
-	    }*/
-	    public String toString() {
-	        return "Ant{" +
-	        		"id=" + this.id ;
 	    }
 }
