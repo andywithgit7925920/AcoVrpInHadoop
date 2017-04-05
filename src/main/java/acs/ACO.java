@@ -1,14 +1,23 @@
 package acs;
 
-import localsearch.*;
 import java.io.Serializable;
+
 import updatestrategy.BaseUpdateStrategy;
 import updatestrategy.UpdateStrategy4Case1;
 import updatestrategy.UpdateStrategy4Case2;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import demo.WordCount.IntSumReducer;
+import demo.WordCount.TokenizerMapper;
 import static util.LogUtil.logger;
 import static vrp.VRP.*;
-
 import util.DataUtil;
 import util.StringUtil;
 import parameter.Parameter;
@@ -16,6 +25,9 @@ import vrp.Solution;
 import vrp.VRP;
 
 import java.io.IOException;
+
+import launch.LaunchDriver;
+import localsearch.*;
 
 /**
  * Created by ab792 on 2016/12/30.
@@ -48,7 +60,7 @@ public class ACO implements Serializable {
                 //导入数据
                 //importDataFromAVRP(FILE_PATH);
                 importDataFromSolomon(filePath);
-                System.out.println("fileName---" + fileName);
+                /*System.out.println("fileName---" + fileName);
                 //初始化信息素矩阵
                 pheromone = new double[clientNum][clientNum];
                 for (int i = 0; i < clientNum; i++) {
@@ -58,8 +70,8 @@ public class ACO implements Serializable {
                 }
                 bestLen = Double.MAX_VALUE;
                 //初始化蚂蚁
-                initAntCommunity();
-            } catch (IOException e) {
+                initAntCommunity();*/
+            } catch (Exception e) {
                 System.err.print("FILE_PATH invalid!");
                 e.printStackTrace();
             }
@@ -83,7 +95,19 @@ public class ACO implements Serializable {
      * ACO的运行过程
      */
     public void run() throws Exception {
-        int RHOCounter = 0;
+    	Configuration conf = new Configuration();
+    	Job job = new Job(conf, "aco run");
+    	job.setJarByClass(LaunchDriver.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+
+        //FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
+        //FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
+        //System.exit(job.waitForCompletion(true) ? 0 : 1);
+        /*int RHOCounter = 0;
         //进行ITER_NUM次迭代
         for (int i = 0; i < ITER_NUM; i++) {
             //System.out.println("ITER_NUM:" + i);
@@ -127,7 +151,7 @@ public class ACO implements Serializable {
             }
         }
         //打印最佳结果
-        printOptimal();
+        printOptimal();*/
     }
 
     /**

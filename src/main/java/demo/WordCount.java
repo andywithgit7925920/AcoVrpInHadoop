@@ -46,8 +46,10 @@ public class WordCount {
     	org.apache.log4j.LogManager.resetConfiguration();
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
         Configuration conf = new Configuration();
-
-        String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+        String[] otherArgs = new String[]{
+				 "hdfs://localhost:9000/user/hadoop/input",
+				 "hdfs://localhost:9000/user/hadoop/output"};
+        //String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
 
         if (otherArgs.length != 2) {
             System.err.println("Usage: wordcount <in> <out>");
