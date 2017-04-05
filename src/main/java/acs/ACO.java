@@ -1,5 +1,9 @@
 package acs;
 
+import hadoop.MapperStep1;
+import hadoop.PheromoneData;
+import hadoop.ReducerStep2;
+
 import java.io.Serializable;
 
 import updatestrategy.BaseUpdateStrategy;
@@ -14,11 +18,15 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import com.google.gson.Gson;
+
 import demo.WordCount.IntSumReducer;
 import demo.WordCount.TokenizerMapper;
+import enums.DataPathEnum;
 import static util.LogUtil.logger;
 import static vrp.VRP.*;
 import util.DataUtil;
+import util.HDFSUtil;
 import util.StringUtil;
 import parameter.Parameter;
 import vrp.Solution;
@@ -44,13 +52,14 @@ public class ACO implements Serializable {
     private BaseUpdateStrategy baseUpdateStrategy;  //信息素更新策略
     private BaseStretegy stretegy;  //局部搜索策略
     private Solution pre3Solution = null;
-
+    Gson gson = null;
 
     public ACO() {
         this.antNum = Parameter.ANT_NUM;
         ITER_NUM = Parameter.ITER_NUM;
         ants = new Ant[antNum];
         baseUpdateStrategy = new UpdateStrategy4Case1();
+        gson = new Gson();
     }
 
 
@@ -60,7 +69,7 @@ public class ACO implements Serializable {
                 //导入数据
                 //importDataFromAVRP(FILE_PATH);
                 importDataFromSolomon(filePath);
-                /*System.out.println("fileName---" + fileName);
+                System.out.println("fileName---" + fileName);
                 //初始化信息素矩阵
                 pheromone = new double[clientNum][clientNum];
                 for (int i = 0; i < clientNum; i++) {
@@ -68,9 +77,13 @@ public class ACO implements Serializable {
                         pheromone[i][j] = Parameter.PHEROMONE_INIT;
                     }
                 }
+                PheromoneData pheromoneData = new PheromoneData();
+                pheromoneData.setPheromone(pheromone);
+                //create pheromone file in HDFS
+                HDFSUtil.CreateFile(DataPathEnum.PheromoneData.toString(), gson.toJson(pheromoneData));
                 bestLen = Double.MAX_VALUE;
                 //初始化蚂蚁
-                initAntCommunity();*/
+                initAntCommunity();
             } catch (Exception e) {
                 System.err.print("FILE_PATH invalid!");
                 e.printStackTrace();
@@ -83,12 +96,17 @@ public class ACO implements Serializable {
 
     /**
      * 初始化蚂蚁
+     * @throws IOException 
      */
-    private void initAntCommunity() {
+    private void initAntCommunity() throws IOException {
+    	StringBuffer sb = new StringBuffer();
         for (int i = 0; i < antNum; i++) {
-            ants[i] = new Ant();
+            ants[i] = new Ant(i);
             ants[i].init();
+            sb.append(gson.toJson(ants[i])).append("\n");
         }
+        HDFSUtil.CreateFile(DataPathEnum.ANT_COLONY_PATH.toString(), sb.toString());
+        
     }
 
     /**
@@ -97,15 +115,21 @@ public class ACO implements Serializable {
     public void run() throws Exception {
     	Configuration conf = new Configuration();
     	Job job = new Job(conf, "aco run");
-    	job.setJarByClass(LaunchDriver.class);
-        job.setMapperClass(TokenizerMapper.class);
-        job.setCombinerClass(IntSumReducer.class);
-        job.setReducerClass(IntSumReducer.class);
+    	job.setJarByClass(ACO.class);
+    	/*----------mapper-----------*/
+    	job.setMapOutputKeyClass(Text.class);
+    	job.setMapOutputValueClass(IntWritable.class);
+        job.setMapperClass(MapperStep1.class);
+		job.setCombinerClass(ReducerStep2.class);  
+        /*----------mapper-----------*/
+        job.setReducerClass(ReducerStep2.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, new Path(DataPathEnum.ANT_COLONY_PATH.toString()));
+        FileOutputFormat.setOutputPath(job, new Path(DataPathEnum.DATA_OUTPUT.toString()));
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        System.out.println("==================finish===================");
 
-        //FileInputFormat.addInputPath(job, new Path(otherArgs[0]));
-        //FileOutputFormat.setOutputPath(job, new Path(otherArgs[1]));
         //System.exit(job.waitForCompletion(true) ? 0 : 1);
         /*int RHOCounter = 0;
         //进行ITER_NUM次迭代

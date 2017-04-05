@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import enums.DataEnum;
+import enums.DataPathEnum;
 import acs.ACO;
 /**
  * Created by ab792 on 2017/3/6.
@@ -34,7 +34,7 @@ public class LaunchDriver {
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
 		Configuration conf = new Configuration();
 		ACO aco = new ACO();
-		aco.init(DataEnum.DATA_INPUT.toString());
-		//aco.run();
+		aco.init(DataPathEnum.DATA_INPUT.toString());
+		aco.run();
     }
 }

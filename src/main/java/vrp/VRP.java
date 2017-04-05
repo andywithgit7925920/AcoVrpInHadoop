@@ -3,17 +3,26 @@ package vrp;
 import util.ArrayUtil;
 import util.LogUtil;
 import util.MatrixUtil;
-import com.google.gson.Gson;
+
+import com.google.gson.Gson;  
+
+import enums.DataPathEnum;
+import hadoop.Cache;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.filecache.DistributedCache;
 
 /**
  * Created by ab792 on 2017/1/18.
@@ -98,7 +107,7 @@ public class VRP {
         MatrixUtil.printMatrix(distance);
     }
 
-    public static void importDataFromSolomon(String filePath)  {
+    public static void importDataFromSolomon(String filePath) throws URISyntaxException  {
         System.out.print("--importDataFromSolomon--");
         Configuration conf = new Configuration();
     	Double[] x_Axis = null;
@@ -191,25 +200,31 @@ public class VRP {
                 }
             }
             //开始打印数据
-            System.out.println("=========clientDemandArr===========");
-            ArrayUtil.printArr(clientDemandArr);
-            System.out.println("=========serviceTime===========");
-            ArrayUtil.printArr(serviceTime);
-            System.out.println("=========time===========");
-            for (int i = 0; i < time.length; i++) {
+            //System.out.println("=========clientDemandArr===========");
+            //ArrayUtil.printArr(clientDemandArr);
+            //System.out.println("=========serviceTime===========");
+            //ArrayUtil.printArr(serviceTime);
+            //System.out.println("=========time===========");
+            /*for (int i = 0; i < time.length; i++) {
                 for (int j = 0; j < time[i].length; j++) {
                     System.out.print(time[i][j] + " ");
                 }
                 System.out.print("\n");
-            }
-            System.out.println("=========distance===========");
-            MatrixUtil.printMatrix(distance);
-            System.out.println("=========savedQnuantity===========");
-            MatrixUtil.printMatrix(savedQnuantity);
-            System.out.println("读入数据完毕");
-            //take the data to hdfs
+            }*/
+            //System.out.println("=========distance===========");
+            //MatrixUtil.printMatrix(distance);
+            //System.out.println("=========savedQnuantity===========");
+            //MatrixUtil.printMatrix(savedQnuantity);
+            //System.out.println("读入数据完毕");
+            System.out.println("add data to cache");
+            //add data to cache
+            Cache cache = new Cache();
+            cache.refresh();
+            //take the data to hdfs distributed cache
             Gson gson = new Gson();
-            
+            String str = gson.toJson(cache);
+            JobConf jobConf = new JobConf(VRP.class);
+            DistributedCache.addCacheFile(new URI(DataPathEnum.CACHE_PATH.toString()), jobConf);
         }catch(IOException e){
         	e.printStackTrace();
         }finally{

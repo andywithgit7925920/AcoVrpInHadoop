@@ -1,22 +1,27 @@
 package acs;
 
 import java.io.Serializable;
+
 import util.ArrayUtil;
 import util.DataUtil;
 import vrp.Solution;
 import vrp.Truck;
 import vrp.VRP;
+
 import java.util.*;
+
 import parameter.Parameter;
 
 public class Ant {
 	 private static final long serialVersionUID = -6878808733419080363L;
+	 	private int id;
 	    private Solution solution;
 	    private int[] allowedClient;  //允许访问的城市
 	    private int[] visitedClient;    //取值0或1，1表示已经访问过，0表示未访问过
 	    private double[][] delta;   //信息素变化矩阵
 
-	    public Ant() {
+	    public Ant(int id) {
+	    	this.id = id;
 	        allowedClient = new int[VRP.clientNum];
 	        delta = new double[VRP.clientNum][VRP.clientNum];
 	        solution = new Solution();
@@ -264,14 +269,18 @@ public class Ant {
 	        this.solution = solution;
 	    }
 
-	    @Override
-	    public String toString() {
+	    //@Override
+	   /*public String toString() {
 	        return "Ant{" +
+	        		"id=" + this.id +
 	                "solution=" + solution +
 	                ", allowedClient=" + Arrays.toString(allowedClient) +
 	                ", visitedClient=" + Arrays.toString(visitedClient) +
 	                ", delta=" + Arrays.toString(delta) +
 	                '}';
+	    }*/
+	    public String toString() {
+	        return "Ant{" +
+	        		"id=" + this.id ;
 	    }
-
 }
