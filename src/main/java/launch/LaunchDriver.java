@@ -1,6 +1,7 @@
 package launch;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -32,7 +33,9 @@ public class LaunchDriver {
 	public static void main(String[] args) throws Exception {
 		org.apache.log4j.LogManager.resetConfiguration();
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
-		Configuration conf = new Configuration();
+        //PrintStream print=new PrintStream("logs.mylog.txt");  //写好输出位置文件；  
+        //System.setOut(print);  
+        Configuration conf = new Configuration();
 		ACO aco = new ACO();
 		aco.init(DataPathEnum.DATA_INPUT.toString());
 		aco.run();

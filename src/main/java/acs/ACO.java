@@ -15,6 +15,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.filecache.DistributedCache;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
@@ -116,6 +117,9 @@ public class ACO implements Serializable {
     	Configuration conf = new Configuration();
     	Job job = new Job(conf, "aco run");
     	job.setJarByClass(ACO.class);
+    	//take the data to hdfs distributed cache
+    	Path cachePath = new Path(DataPathEnum.CACHE_PATH.toString());
+        DistributedCache.addCacheFile(cachePath.toUri(), job.getConfiguration());
     	/*----------mapper-----------*/
     	job.setMapOutputKeyClass(Text.class);
     	job.setMapOutputValueClass(IntWritable.class);

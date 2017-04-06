@@ -1,5 +1,7 @@
 package hadoop;
 
+import java.util.Arrays;
+
 import vrp.VRP;
 
 public class Cache {
@@ -23,4 +25,15 @@ public class Cache {
     	this.time = VRP.time;
     	this.savedQnuantity  = VRP.savedQnuantity;
     }
+	@Override
+	public String toString() {
+		return "Cache [fileName=" + fileName + ", clientNum=" + clientNum
+				+ ", capacity=" + capacity + ", distance="
+				+ Arrays.toString(distance) + ", clientDemandArr="
+				+ Arrays.toString(clientDemandArr) + ", serviceTime="
+				+ Arrays.toString(serviceTime) + ", time="
+				+ Arrays.toString(time) + ", savedQnuantity="
+				+ Arrays.toString(savedQnuantity) + "]";
+	}
+    
 }

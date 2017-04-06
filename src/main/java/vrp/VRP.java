@@ -1,6 +1,7 @@
 package vrp;
 
 import util.ArrayUtil;
+import util.HDFSUtil;
 import util.LogUtil;
 import util.MatrixUtil;
 
@@ -22,6 +23,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.filecache.DistributedCache;
 
 /**
@@ -220,11 +222,13 @@ public class VRP {
             //add data to cache
             Cache cache = new Cache();
             cache.refresh();
-            //take the data to hdfs distributed cache
+            //create caches file in HDFS
             Gson gson = new Gson();
             String str = gson.toJson(cache);
-            JobConf jobConf = new JobConf(VRP.class);
-            DistributedCache.addCacheFile(new URI(DataPathEnum.CACHE_PATH.toString()), jobConf);
+            HDFSUtil.CreateFile(DataPathEnum.CACHE_PATH.toString(), str);
+            
+            //JobConf jobConf = new JobConf(VRP.class);
+            //DistributedCache.addCacheFile(new URI(DataPathEnum.CACHE_PATH.toString()), jobConf);
         }catch(IOException e){
         	e.printStackTrace();
         }finally{
