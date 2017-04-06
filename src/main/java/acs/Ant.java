@@ -61,10 +61,16 @@ public class Ant {
 	     * @param pheromone
 	     */
 	    public void selectNextClient(double[][] pheromone) {
+	    	//System.out.println("====selectNextClient====");
 	        double[] p = new double[VRP.clientNum];
+	        //System.out.println("====p====");
+	        //ArrayUtil.printArr(p);
 	        double sum = 0.0;
+	        //System.out.println("solution====>"+solution);
 	        Truck currTruck = solution.getCurrentTruck();
+	        //System.out.println("currTruck====>"+currTruck);
 	        int currentCus = currTruck.getCurrentCus();
+	        //System.out.println("currentCus====>"+currentCus);
 	        //计算分母部分
 	        for (int i = 0; i < allowedClient.length; i++) {
 	            if (allowedClient[i] == 1) {
@@ -95,6 +101,8 @@ public class Ant {
 	                p[i] = 0.0;
 	            }
 	        }
+	        //System.out.println("====p====");
+	        //ArrayUtil.printArr(p);
 	        //轮盘赌选择下一个城市
 	        double R = Math.random();
 	        int selectedClient;
@@ -108,9 +116,15 @@ public class Ant {
 	        allowedClient[selectedClient] = 0;
 	        //将当前城市加入solution中
 	        solution.addCus(selectedClient);
+	        //System.out.println("selectedClient====>"+selectedClient);
 	        allowedClientFilter();
+	        //System.out.println("====allowedClient====");
+	        //ArrayUtil.printArr(allowedClient);
+	        //System.out.println("====visitedClient====");
+	        //ArrayUtil.printArr(visitedClient);
 	        //如果当前已经走完一个循环,如果allowedClient只包含0点，则进入下一循环
 	        if ((OnlyContainsDeposit(allowedClient) && !visitFinish())) {
+	        	//System.out.println("begin increaseLoop");
 	            solution.increaseLoop();
 	            ArrayUtil.initIntegerArray2Zero(allowedClient);
 	            //重新计算允许访问的客户

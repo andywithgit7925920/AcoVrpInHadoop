@@ -54,14 +54,19 @@ public class Solution implements Serializable {
      * @param currentCus
      */
     public void addCus(int currentCus) {
+    	//System.out.println("====solution.addCus====");
+    	//System.out.println("currentCus====>"+currentCus);
         if (currentCus != 0) {
+        	//System.out.println("1111111====");
             if (currentCicycle > truckSols.size()) {
                 Truck truck = new Truck(currentCicycle);
                 truck.addCus(currentCus);
                 addTruck(truck);
             } else {
+            	//System.out.println("222222222====");
                 truckSols.get(currentCicycle - 1).addCus(currentCus);
             }
+            //System.out.println("solutiuon====>"+this);
         }
     }
 
@@ -251,12 +256,18 @@ public class Solution implements Serializable {
     }
 
     public Truck getCurrentTruck() {
+    	//System.out.println("=============Solution.getCurrentTruck============");
         /*******************/
+    	//System.out.println("currentCicycle->"+currentCicycle);
+    	//System.out.println("truckSols.size()->"+truckSols.size());
         if (currentCicycle > truckSols.size()) {
             Truck truck = new Truck(currentCicycle);
             currentTruck = truck;
             addTruck(truck);
         }
+        currentTruck = truckSols.get(truckSols.size()-1);
+        //System.out.println("this--->"+this);
+        //System.out.print("currentTruck--->"+currentTruck);
         return currentTruck;
     }
 

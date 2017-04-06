@@ -1,8 +1,11 @@
 package vrp;
 
 import java.io.Serializable;
+
 import util.DataUtil;
+import util.MatrixUtil;
 import parameter.Parameter;
+
 import java.util.LinkedList;
 
 import static vrp.VRP.*;
@@ -310,6 +313,7 @@ public class Truck implements Serializable{
      * @return
      */
     public double calCost() {
+    	//System.out.println("Truck.calCost");
         double len = 0.0;
         if (customers.size() > 0) {
             len += distance[0][customers.getFirst()];

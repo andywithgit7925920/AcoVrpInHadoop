@@ -44,8 +44,24 @@ public class VRP {
     public static double[][] time;     //车辆起止时间
     public static double[][] savedQnuantity;    //节约量
     /************vrptw**********/
-    /******待读取信息******/
-
+    public static void printSelf(){
+    	//开始打印数据
+        System.out.println("=========clientDemandArr===========");
+        ArrayUtil.printArr(clientDemandArr);
+        System.out.println("=========serviceTime===========");
+        ArrayUtil.printArr(serviceTime);
+        System.out.println("=========time===========");
+        for (int i = 0; i < time.length; i++) {
+            for (int j = 0; j < time[i].length; j++) {
+                System.out.print(time[i][j] + " ");
+            }
+            System.out.print("\n");
+        }
+        System.out.println("=========distance===========");
+        MatrixUtil.printMatrix(distance);
+        System.out.println("=========savedQnuantity===========");
+        MatrixUtil.printMatrix(savedQnuantity);
+    }
     /**
      * 读取对应的文件信息
      *

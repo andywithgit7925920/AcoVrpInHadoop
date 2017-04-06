@@ -2,6 +2,7 @@ package localsearch;
 
 import vrp.Solution;
 import vrp.Truck;
+import vrp.VRP;
 
 import java.util.LinkedList;
 
@@ -48,18 +49,28 @@ public class _2OptStretegy implements BaseStretegy {
         if (preSolution == null || preSolution.getTruckSols() == null)
             return;
         LinkedList<Truck> truckSols = preSolution.getTruckSols();
+        //System.out.println("truckSols-->"+truckSols);
         for (int i = 0; i < truckSols.size(); i++) {
+        	//System.out.println("i-->"+i);
             Truck truck = truckSols.get(i);
             LinkedList<Integer> customers = truck.getCustomers();
+            //System.out.println("customers-->"+customers);
             double bestCost = truck.calCost();
+            //System.out.println("bestCost-->"+bestCost);
             Truck newTruck;
             double newCost;
             for (int j = 0; j < customers.size() - 1; j++) {
+            	//System.out.println("j-->"+j);
                 for (int k = j + 1; k < customers.size(); k++) {
+                	//System.out.println("k-->"+k);
                     newTruck = _2OptSwap(truck, j, k);
+                    //System.out.println("new customers-->"+newTruck.getCustomers());
+                    //System.out.println("newTruck cost-->"+newTruck.calCost());
+                    //System.out.println("newTruck===========>"+newTruck);
                     if (newTruck.isGoodTruck()) {
                         newCost = newTruck.calCost();
                         if (newCost < bestCost) {
+                        	//System.out.println("newCost----------------------------good->"+newCost);
                             truckSols.remove(i);
                             newTruck.refreshNowCap();
                             truckSols.add(i, newTruck);
@@ -69,6 +80,7 @@ public class _2OptStretegy implements BaseStretegy {
             }
         }
         //System.out.println("_2OptStretegy.updateSolution end");
+        //VRP.printSelf();
     }
 
     /*public double calCost(Truck truck1, Truck truck2, int indexI, int indexJ) throws Exception {

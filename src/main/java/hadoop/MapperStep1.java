@@ -2,7 +2,12 @@ package hadoop;
 
 import java.io.IOException;
 
+import localsearch.BaseStretegy;
 import localsearch.DefaultStretegy;
+import localsearch._10Relocate$Stretegy;
+import localsearch._10RelocateStretegy;
+import localsearch._2Opt$Stretegy;
+import localsearch._2OptStretegy;
 
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
@@ -12,6 +17,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import util.GsonUtil;
 import util.HDFSUtil;
+import util.MatrixUtil;
+import vrp.VRP;
 import acs.Ant;
 
 import com.google.gson.Gson;
@@ -33,10 +40,12 @@ public class MapperStep1  extends Mapper<Object, Text, Text, IntWritable>{
 		//System.out.print("key------->"+key);
 		//System.out.print("val------->"+ant.getId());
 		//traceRoad
-		ant.traceRoad(pheromoneData.getPheromone());
 		try {
+			//MatrixUtil.printMatrix(pheromoneData.getPheromone());
+			ant.traceRoad(pheromoneData.getPheromone());
+			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before" + ant.getLength());
 			DefaultStretegy.improveSolution(ant);
-			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度" + ant.getLength());
+			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after" + ant.getLength());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
