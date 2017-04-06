@@ -20,7 +20,7 @@ public class Ant {
 	    private int[] visitedClient;    //取值0或1，1表示已经访问过，0表示未访问过
 	    private double[][] delta;   //信息素变化矩阵
 
-	    public Ant(int id) {
+		public Ant(int id) {
 	    	this.id = id;
 	        allowedClient = new int[VRP.clientNum];
 	        delta = new double[VRP.clientNum][VRP.clientNum];
@@ -268,6 +268,14 @@ public class Ant {
 	    public void setSolution(Solution solution) {
 	        this.solution = solution;
 	    }
+
+	    public int getId() {
+			return id;
+		}
+
+		public void setId(int id) {
+			this.id = id;
+		}
 
 	    //@Override
 	   public String toString() {

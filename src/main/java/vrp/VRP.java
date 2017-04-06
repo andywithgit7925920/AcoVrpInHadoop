@@ -1,6 +1,7 @@
 package vrp;
 
 import util.ArrayUtil;
+import util.GsonUtil;
 import util.HDFSUtil;
 import util.LogUtil;
 import util.MatrixUtil;
@@ -223,8 +224,7 @@ public class VRP {
             Cache cache = new Cache();
             cache.refresh();
             //create caches file in HDFS
-            Gson gson = new Gson();
-            String str = gson.toJson(cache);
+            String str = GsonUtil.gson.toJson(cache);
             HDFSUtil.CreateFile(DataPathEnum.CACHE_PATH.toString(), str);
             
             //JobConf jobConf = new JobConf(VRP.class);

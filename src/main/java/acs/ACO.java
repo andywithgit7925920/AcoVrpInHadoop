@@ -27,6 +27,7 @@ import enums.DataPathEnum;
 import static util.LogUtil.logger;
 import static vrp.VRP.*;
 import util.DataUtil;
+import util.GsonUtil;
 import util.HDFSUtil;
 import util.StringUtil;
 import parameter.Parameter;
@@ -53,14 +54,14 @@ public class ACO implements Serializable {
     private BaseUpdateStrategy baseUpdateStrategy;  //信息素更新策略
     private BaseStretegy stretegy;  //局部搜索策略
     private Solution pre3Solution = null;
-    Gson gson = null;
+    //Gson gson = null;
 
     public ACO() {
         this.antNum = Parameter.ANT_NUM;
         ITER_NUM = Parameter.ITER_NUM;
         ants = new Ant[antNum];
         baseUpdateStrategy = new UpdateStrategy4Case1();
-        gson = new Gson();
+        //gson = new Gson();
     }
 
 
@@ -81,7 +82,7 @@ public class ACO implements Serializable {
                 PheromoneData pheromoneData = new PheromoneData();
                 pheromoneData.setPheromone(pheromone);
                 //create pheromone file in HDFS
-                HDFSUtil.CreateFile(DataPathEnum.PheromoneData.toString(), gson.toJson(pheromoneData));
+                HDFSUtil.CreateFile(DataPathEnum.PheromoneData.toString(), GsonUtil.gson.toJson(pheromoneData));
                 bestLen = Double.MAX_VALUE;
                 //初始化蚂蚁
                 initAntCommunity();
@@ -104,7 +105,7 @@ public class ACO implements Serializable {
         for (int i = 0; i < antNum; i++) {
             ants[i] = new Ant(i);
             ants[i].init();
-            sb.append(gson.toJson(ants[i])).append("\n");
+            sb.append(GsonUtil.gson.toJson(ants[i])).append("\n");
         }
         HDFSUtil.CreateFile(DataPathEnum.ANT_COLONY_PATH.toString(), sb.toString());
         
