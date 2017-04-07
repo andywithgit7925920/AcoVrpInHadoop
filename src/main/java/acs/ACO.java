@@ -32,6 +32,7 @@ import util.DataUtil;
 import util.GsonUtil;
 import util.HDFSUtil;
 import util.LogUtil;
+import util.MatrixUtil;
 import util.StringUtil;
 import parameter.Parameter;
 import vrp.Solution;
@@ -57,6 +58,8 @@ public class ACO implements Serializable {
     private BaseUpdateStrategy baseUpdateStrategy;  //信息素更新策略
     private BaseStretegy stretegy;  //局部搜索策略
     private Solution pre3Solution = null;
+    private Solution preNSolution = null;
+    private static PheromoneData pheromoneData;
     int FINISHCounter;
 
     public ACO() {
@@ -118,93 +121,70 @@ public class ACO implements Serializable {
      * ACO的运行过程
      */
     public void run() throws Exception {
-    	int RHOCounter = 0;
-        FINISHCounter = 0;
-        //进行ITER_NUM次迭代
-        //for (int i = 0; i < ITER_NUM; i++) {
-    	Configuration conf = new Configuration();
-    	Job job = new Job(conf, "aco run");
-    	job.setJarByClass(ACO.class);
-    	//take the data to hdfs distributed cache
-    	Path cachePath = new Path(DataPathEnum.CACHE_PATH.toString());
-        DistributedCache.addCacheFile(cachePath.toUri(), job.getConfiguration());
-    	/*----------mapper-----------*/
-    	job.setMapOutputKeyClass(IntWritable.class);
-    	job.setMapOutputValueClass(AntTempEntity.class);
-        job.setMapperClass(MapperStep1.class);
-		job.setCombinerClass(ReducerStep2.class);  
-        /*----------mapper-----------*/
-		job.setNumReduceTasks(1);  
-        job.setReducerClass(ReducerStep2.class);
-        job.setOutputKeyClass(NullWritable.class);
-        job.setOutputValueClass(Text.class);
-        FileInputFormat.addInputPath(job, new Path(DataPathEnum.ANT_COLONY_PATH.toString()));
-        FileOutputFormat.setOutputPath(job, new Path(DataPathEnum.DATA_OUTPUT.toString()));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
-        System.out.println("==================finish===================");
-        /*++RHOCounter;
-        ++FINISHCounter;
-        //初始化蚁群
-        initAntCommunity();
-        //如果三代以内，最优解的变化值在3之内，则更新RHO
-        if (RHOCounter > 3) {
-            RHOCounter = 0;
-            if (DataUtil.le(pre3Solution.calCost() - bestSolution.calCost(), 3.0)) {
-                updateRHO();
-            }
-            pre3Solution = bestSolution;
+	    	int RHOCounter = 0;
+	        FINISHCounter = 0;
+	        //进行ITER_NUM次迭代
+	        for (int i = 0; i < ITER_NUM; i++) {
+		    	Configuration conf = new Configuration();
+		    	Job job = new Job(conf, "aco run");
+		    	job.setJarByClass(ACO.class);
+		    	//take the data to hdfs distributed cache
+		    	Path cachePath = new Path(DataPathEnum.CACHE_PATH.toString());
+		    	DistributedCache.addCacheFile(cachePath.toUri(), job.getConfiguration());
+		    	/*----------mapper-----------*/
+		    	job.setMapOutputKeyClass(IntWritable.class);
+		    	job.setMapOutputValueClass(AntTempEntity.class);
+		        job.setMapperClass(MapperStep1.class);
+				//job.setCombinerClass(ReducerStep2.class);  
+		        /*----------mapper-----------*/
+				job.setNumReduceTasks(1);  
+		        job.setReducerClass(ReducerStep2.class);
+		        job.setOutputKeyClass(NullWritable.class);
+		        job.setOutputValueClass(Text.class);
+		        FileInputFormat.addInputPath(job, new Path(DataPathEnum.ANT_COLONY_PATH.toString()));
+		        FileOutputFormat.setOutputPath(job, new Path(DataPathEnum.DATA_OUTPUT.toString()));
+		        if(!job.waitForCompletion(true)){  
+		            System.exit(1); // run error then exit  
+		        }  
+		        //get pheromone in HDFS
+		        String pheromoneStr = HDFSUtil.readFile(DataPathEnum.PheromoneData.toString());
+				pheromoneData = GsonUtil.gson.fromJson(pheromoneStr, PheromoneData.class);
+				MatrixUtil.printMatrix(pheromoneData.getPheromone());
+				//get bestAnt in HDFS
+				String bestANtStr = HDFSUtil.readFile(DataPathEnum.DATA_OUTPUT_RESULT.toString());
+				Ant result = GsonUtil.gson.fromJson(bestANtStr, Ant.class);
+				System.out.println("result===================>"+result.getLength());
+				//delete output
+				HDFSUtil.deleteDir(DataPathEnum.DATA_OUTPUT.toString());
+				baseUpdateStrategy = new UpdateStrategy4Case1();
+				updatePheromoneBySolution(result,pheromoneData.getPheromone());
+	            //更新信息素
+	            baseUpdateStrategy.updateByAntRule2(pheromoneData.getPheromone(), bestAnt);
+	            //再次广播变量
+	            System.out.println("广播开始");
+	          //create pheromone file in HDFS
+	            HDFSUtil.CreateFile(DataPathEnum.PheromoneData.toString(), GsonUtil.gson.toJson(pheromoneData));
+	            System.out.println("广播结束");
+	            //++RHOCounter;
+	            //++FINISHCounter;
+	            //初始化蚁群
+	            initAntCommunity();
+	            //如果三代以内，最优解的变化值在3之内，则更新RHO
+	            /*if (RHOCounter > 3) {
+	                RHOCounter = 0;
+	                if (DataUtil.le(pre3Solution.calCost() - bestSolution.calCost(), 3.0)) {
+	                    updateRHO();
+	                }
+	                pre3Solution = bestSolution;
+	            }*/
+	            /*if (FINISHCounter >= Parameter.N) {
+	                LogUtil.logger.info("FINISHCounter--->" + Parameter.N);
+	                break;
+	            }*/
         }
-        if (FINISHCounter >= Parameter.N) {
-            LogUtil.logger.info("FINISHCounter--->" + Parameter.N);
-            break;
-        }
-        }*/
-        //System.exit(job.waitForCompletion(true) ? 0 : 1);
-        /*int RHOCounter = 0;
-        //进行ITER_NUM次迭代
-        for (int i = 0; i < ITER_NUM; i++) {
-            //System.out.println("ITER_NUM:" + i);
-            //对于每一只蚂蚁
-            for (int j = 0; j < antNum; j++) {
-                //logger.info("第" + j + "只蚂蚁开始");
-                ants[j].traceRoad(pheromone);
-                //System.out.println("第" + j + "只蚂蚁总路径长度" + ants[j].getLength());
-                //System.out.println("第" + j + "只蚂蚁的解"+ants[j].getSolution());
-                //改变信息素更新策略
-                updatePheromoneBySolution(ants[j]);
-                //logger.info("优化前--------------------------------------------------------->" + ants[j].getLength());
-                //logger.info("=========优化解 begin==========");
-                DefaultStretegy.improveSolution(ants[j]);
-                //logger.info("=========优化解 end==========");
-                //System.out.println("优化后的解------------------------->" + ants[j].getLength());
-                //3.若𝑅的用车 数等于𝑅∗的用车数, 且𝑅的距离/时间费用小于𝑅∗相 应的费用, 或𝑅的用车数小于𝑅∗的用车数时
-                if ((ants[j].getSolution().getTruckNum() == bestSolution.getTruckNum() && DataUtil.less(ants[j].getLength(), bestLen)) || (ants[j].getSolution().getTruckNum() < bestSolution.getTruckNum())) {
-                    bestAnt = ants[j];
-                    bestLen = bestAnt.getLength();
-                    bestSolution = bestAnt.getSolution();
-                    //更新最大最小信息素
-                    updateMaxMinPheromone();
-                }
-                //更新蚂蚁自身的信息素
-                ants[j].updatePheromone();
-                //baseUpdateStrategy.updateByAntRule2(pheromone, bestAnt);
-            }
-            ++RHOCounter;
-            //更新信息素
-            baseUpdateStrategy.updateByAntRule1(pheromone, ants, bestAnt);
-            //初始化蚁群
-            initAntCommunity();
-            //如果三代以内，最优解的变化值在3之内，则更新RHO
-            if (RHOCounter > 3) {
-                RHOCounter = 0;
-                if (DataUtil.le(pre3Solution.calCost() - bestSolution.calCost(), 3.0)) {
-                    updateRHO();
-                }
-                pre3Solution = bestSolution;
-            }
-        }
-        //打印最佳结果
-        printOptimal();*/
+	        System.out.println("====================================end======================================");  
+	    //打印最佳结果
+	    printOptimal();
     }
 
     /**
@@ -212,8 +192,8 @@ public class ACO implements Serializable {
      *
      * @param ant
      */
-    private void updatePheromoneBySolution(Ant ant) {
-        if (bestSolution == null && bestAnt == null) {
+    private void updatePheromoneBySolution(Ant ant,double[][] pheromone) {
+    	if (bestSolution == null && bestAnt == null) {
             //logger.info("=========case1==========");
             bestAnt = ant;
             bestLen = bestAnt.getLength();
@@ -221,6 +201,7 @@ public class ACO implements Serializable {
             //更新最大最小信息素
             updateMaxMinPheromone();
             pre3Solution = bestSolution;
+            preNSolution = bestSolution;
         }
         //1.若𝑅的用车数大于𝑅∗的 用车数, 则将𝑅中所有边上的信息素进行大量蒸发
         else if (ant.getSolution().getTruckNum() > bestSolution.getTruckNum()) {
@@ -233,6 +214,15 @@ public class ACO implements Serializable {
             //logger.info("=========case3==========");
             setBaseUpdateStrategy(new UpdateStrategy4Case2());
             baseUpdateStrategy.updatePheBySolution(pheromone, ant.getSolution());
+        } else {
+            //logger.info("=========case4==========");
+            bestAnt = ant;
+            bestLen = bestAnt.getLength();
+            bestSolution = bestAnt.getSolution();
+            preNSolution = bestSolution;
+            FINISHCounter = 0;
+            //更新最大最小信息素
+            updateMaxMinPheromone();
         }
     }
 

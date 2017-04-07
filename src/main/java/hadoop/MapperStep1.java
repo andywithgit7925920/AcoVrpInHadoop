@@ -33,7 +33,7 @@ public class MapperStep1  extends Mapper<Object, Text, IntWritable, AntTempEntit
 	protected void map(Object key, Text value,
 			org.apache.hadoop.mapreduce.Mapper.Context context)
 			throws IOException, InterruptedException {
-		//System.out.println("=====================MapperStep1.map=========================");
+		System.out.println("=====================MapperStep1.map============begin=============");
 		//get the cache data(parameter and input)
 		String val = String.valueOf(value);
 		Ant ant = GsonUtil.gson.fromJson(val, Ant.class);
@@ -43,15 +43,16 @@ public class MapperStep1  extends Mapper<Object, Text, IntWritable, AntTempEntit
 		//traceRoad
 			//MatrixUtil.printMatrix(pheromoneData.getPheromone());
 			ant.traceRoad(pheromoneData.getPheromone());
-			//System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before" + ant.getLength());
+			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before" + ant.getLength());
 			try {
 				DefaultStretegy.improveSolution(ant);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			//System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after" + ant.getLength());
+			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after" + ant.getLength());
 			String antTmp = GsonUtil.gson.toJson(ant);
 			context.write(new IntWritable(1), new AntTempEntity(new Text(antTmp),new DoubleWritable(ant.getLength())));
+			System.out.println("=====================MapperStep1.map============end=============");
 	}
 
 	@Override

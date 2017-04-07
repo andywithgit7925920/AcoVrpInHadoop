@@ -35,9 +35,10 @@ public class LaunchDriver {
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
         //PrintStream print=new PrintStream("logs.mylog.txt");  //写好输出位置文件；  
         //System.setOut(print);  
-        Configuration conf = new Configuration();
+        System.out.println("LaunchDriver.main ===========begin");
 		ACO aco = new ACO();
 		aco.init(DataPathEnum.DATA_INPUT.toString());
 		aco.run();
+		System.out.println("LaunchDriver.main ===========end");
     }
 }

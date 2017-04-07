@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Scanner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -28,13 +29,13 @@ public class HDFSUtil {
 			throws IOException {
 		FileSystem fs = null;
 		FSDataOutputStream outputStream = null;
-		try{
+		try {
 			Path dfs = new Path(path);
 			/**
 			 * single computer
 			 */
 			// FileSystem hdfs=FileSystem.get(conf);
-			
+
 			fs = dfs.getFileSystem(conf);
 			if (fs.exists(dfs)) {
 				fs.delete(dfs);
@@ -42,10 +43,10 @@ public class HDFSUtil {
 			byte[] buff = content.getBytes();
 			outputStream = fs.create(dfs);
 			outputStream.write(buff, 0, buff.length);
-		}finally{
+		} finally {
 			outputStream.flush();
 			outputStream.close();
-			fs.close();
+			// fs.close();
 		}
 		System.out.println("Runing CreateFile over!!");
 	}
@@ -94,7 +95,7 @@ public class HDFSUtil {
 			/**
 			 * single computer
 			 */
-			//fs = FileSystem.newInstance(conf);
+			// fs = FileSystem.newInstance(conf);
 			fs = filePath.getFileSystem(conf);
 			in = fs.open(filePath);
 			scan = new Scanner(in);
@@ -104,9 +105,29 @@ public class HDFSUtil {
 			}
 		} finally {
 			//scan.close();
-			//in.close();
-			//fs.close();
+			// in.close();
+			// fs.close();
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * delete dir in HDFS
+	 * 
+	 * @param dir
+	 * @return
+	 * @throws IOException
+	 */
+	public static boolean deleteDir(String dir) throws IOException {
+		if (StringUtils.isBlank(dir)) {
+			return false;
+		}
+		FileSystem fs = FileSystem.get(URI.create(dir), conf);
+		if (!fs.exists(new Path(dir))) {
+			return false;
+		}
+		fs.delete(new Path(dir), true);
+		//fs.close();
+		return true;
 	}
 }

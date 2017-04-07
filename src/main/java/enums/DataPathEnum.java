@@ -52,6 +52,19 @@ public enum DataPathEnum implements BaseEnum{
 		}
 		
 	},
+	DATA_OUTPUT_RESULT{
+
+		@Override
+		public String toString() {
+			// TODO Auto-generated method stub
+			return "hdfs://localhost:9000/user/hadoop/output/part-r-00000";
+		}
+		public int getCode() {
+			// TODO Auto-generated method stub
+			return 4;
+		}
+		
+	},
 	ANT_COLONY_PATH{
 		@Override
 		public String toString() {
@@ -60,7 +73,7 @@ public enum DataPathEnum implements BaseEnum{
 		}
 		public int getCode() {
 			// TODO Auto-generated method stub
-			return 3;
+			return 5;
 		}
 	};
 

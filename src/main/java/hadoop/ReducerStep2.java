@@ -17,7 +17,7 @@ import acs.Ant;
 
 public class ReducerStep2 extends
 		Reducer<IntWritable, AntTempEntity, NullWritable, Text> {
-	private static PheromoneData pheromoneData;
+	
 	private BaseUpdateStrategy baseUpdateStrategy;  //信息素更新策略
 	protected void reduce(IntWritable key, Iterable<AntTempEntity> values,
 			Context context) throws IOException, InterruptedException {
@@ -39,17 +39,11 @@ public class ReducerStep2 extends
 			}
 		}
 		bestAnt.updatePheromone();
-		System.out.println("----------------------------------");
-		System.out.println("context----------------------------------"+context);
-		context.write(null, new Text(""));
+		context.write(null, new Text(GsonUtil.gson.toJson(bestAnt)));
 		//context.write(null, new Text(GsonUtil.gson.toJson(bestAnt)));
-		// System.out.println("bestAnt--->"+bestAnt);
-		// System.out.println("bestLength--->"+bestLength);
-		//更新信息素
-        //baseUpdateStrategy.updateByAntRule2(pheromoneData.getPheromone(), bestAnt);
-      //create pheromone file in HDFS
-        //HDFSUtil.CreateFile(DataPathEnum.PheromoneData.toString(), GsonUtil.gson.toJson(pheromoneData));
-        //System.out.println("==================ReducerStep2.reduce-end===================");
+		System.out.println("bestAnt--->"+bestAnt);
+		System.out.println("bestLength--->"+bestLength);
+        System.out.println("==================ReducerStep2.reduce-end===================");
 	}
 
 	@Override
@@ -59,9 +53,7 @@ public class ReducerStep2 extends
 		System.out.println("==================ReducerStep2.setup===================");
 		String str1;
 		try {
-			str1 = HDFSUtil.readFile(DataPathEnum.PheromoneData.toString());
-			pheromoneData = GsonUtil.gson.fromJson(str1, PheromoneData.class);
-			baseUpdateStrategy = new UpdateStrategy4Case1();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
