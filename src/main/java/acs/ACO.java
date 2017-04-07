@@ -75,9 +75,8 @@ public class ACO implements Serializable {
         if (StringUtil.isNotEmpty(filePath)) {
             try {
                 //导入数据
-                //importDataFromAVRP(FILE_PATH);
                 importDataFromSolomon(filePath);
-                System.out.println("fileName---" + fileName);
+                LogUtil.logger.info("fileName---" + fileName);
                 //初始化信息素矩阵
                 pheromone = new double[clientNum][clientNum];
                 for (int i = 0; i < clientNum; i++) {
@@ -107,7 +106,7 @@ public class ACO implements Serializable {
      * @throws IOException 
      */
     private void initAntCommunity() throws IOException {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
         for (int i = 0; i < antNum; i++) {
             ants[i] = new Ant(i);
             ants[i].init();
@@ -124,13 +123,13 @@ public class ACO implements Serializable {
 	    	int RHOCounter = 0;
 	        FINISHCounter = 0;
 	        //进行ITER_NUM次迭代
+	        Configuration conf = new Configuration();
 	        for (int i = 0; i < ITER_NUM; i++) {
-		    	Configuration conf = new Configuration();
-		    	Job job = new Job(conf, "aco run");
+		    	Job job = new Job(conf, "aco run"+i);
 		    	job.setJarByClass(ACO.class);
 		    	//take the data to hdfs distributed cache
-		    	Path cachePath = new Path(DataPathEnum.CACHE_PATH.toString());
-		    	DistributedCache.addCacheFile(cachePath.toUri(), job.getConfiguration());
+		    	//Path cachePath = new Path(DataPathEnum.CACHE_PATH.toString());
+		    	//DistributedCache.addCacheFile(cachePath.toUri(), job.getConfiguration());
 		    	/*----------mapper-----------*/
 		    	job.setMapOutputKeyClass(IntWritable.class);
 		    	job.setMapOutputValueClass(AntTempEntity.class);
@@ -149,11 +148,11 @@ public class ACO implements Serializable {
 		        //get pheromone in HDFS
 		        String pheromoneStr = HDFSUtil.readFile(DataPathEnum.PheromoneData.toString());
 				pheromoneData = GsonUtil.gson.fromJson(pheromoneStr, PheromoneData.class);
-				MatrixUtil.printMatrix(pheromoneData.getPheromone());
+				//MatrixUtil.printMatrix(pheromoneData.getPheromone());
 				//get bestAnt in HDFS
 				String bestANtStr = HDFSUtil.readFile(DataPathEnum.DATA_OUTPUT_RESULT.toString());
 				Ant result = GsonUtil.gson.fromJson(bestANtStr, Ant.class);
-				System.out.println("result===================>"+result.getLength());
+				//System.out.println("result===================>"+result.getLength());
 				//delete output
 				HDFSUtil.deleteDir(DataPathEnum.DATA_OUTPUT.toString());
 				baseUpdateStrategy = new UpdateStrategy4Case1();
@@ -161,28 +160,28 @@ public class ACO implements Serializable {
 	            //更新信息素
 	            baseUpdateStrategy.updateByAntRule2(pheromoneData.getPheromone(), bestAnt);
 	            //再次广播变量
-	            System.out.println("广播开始");
+	            //System.out.println("广播开始");
 	          //create pheromone file in HDFS
 	            HDFSUtil.CreateFile(DataPathEnum.PheromoneData.toString(), GsonUtil.gson.toJson(pheromoneData));
-	            System.out.println("广播结束");
-	            //++RHOCounter;
-	            //++FINISHCounter;
+	            //System.out.println("广播结束");
+	            ++RHOCounter;
+	            ++FINISHCounter;
 	            //初始化蚁群
 	            initAntCommunity();
 	            //如果三代以内，最优解的变化值在3之内，则更新RHO
-	            /*if (RHOCounter > 3) {
+	            if (RHOCounter > 3) {
 	                RHOCounter = 0;
 	                if (DataUtil.le(pre3Solution.calCost() - bestSolution.calCost(), 3.0)) {
 	                    updateRHO();
 	                }
 	                pre3Solution = bestSolution;
-	            }*/
-	            /*if (FINISHCounter >= Parameter.N) {
+	            }
+	            if (FINISHCounter >= Parameter.N) {
 	                LogUtil.logger.info("FINISHCounter--->" + Parameter.N);
 	                break;
-	            }*/
+	            }
         }
-	        System.out.println("====================================end======================================");  
+	        //System.out.println("====================================end======================================");  
 	    //打印最佳结果
 	    printOptimal();
     }

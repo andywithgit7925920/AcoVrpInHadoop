@@ -26,33 +26,31 @@ import com.google.gson.Gson;
 
 import enums.DataPathEnum;
 
-public class MapperStep1  extends Mapper<Object, Text, IntWritable, AntTempEntity>{
-	private static Cache cache;
+public class MapperStep1 extends
+		Mapper<Object, Text, IntWritable, AntTempEntity> {
+	// private static Cache cache;
 	private static PheromoneData pheromoneData;
+
 	@Override
 	protected void map(Object key, Text value,
 			org.apache.hadoop.mapreduce.Mapper.Context context)
 			throws IOException, InterruptedException {
-		System.out.println("=====================MapperStep1.map============begin=============");
-		//get the cache data(parameter and input)
-		String val = String.valueOf(value);
-		Ant ant = GsonUtil.gson.fromJson(val, Ant.class);
-		//get the pheromone
-		//System.out.print("key------->"+key);
-		//System.out.print("val------->"+ant.getId());
-		//traceRoad
-			//MatrixUtil.printMatrix(pheromoneData.getPheromone());
+		//System.out.println("=====================MapperStep1.map============begin=============");
+		// get the cache data(parameter and input)
+		try {
+			String val = String.valueOf(value);
+			Ant ant = GsonUtil.gson.fromJson(val, Ant.class);
 			ant.traceRoad(pheromoneData.getPheromone());
-			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before" + ant.getLength());
-			try {
-				DefaultStretegy.improveSolution(ant);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after" + ant.getLength());
+			//System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before"+ ant.getLength());
+			DefaultStretegy.improveSolution(ant);
+			//System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after"+ ant.getLength());
 			String antTmp = GsonUtil.gson.toJson(ant);
-			context.write(new IntWritable(1), new AntTempEntity(new Text(antTmp),new DoubleWritable(ant.getLength())));
-			System.out.println("=====================MapperStep1.map============end=============");
+			context.write(new IntWritable(1), new AntTempEntity(new Text(antTmp),
+					new DoubleWritable(ant.getLength())));
+			//System.out.println("=====================MapperStep1.map============end=============");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -60,14 +58,17 @@ public class MapperStep1  extends Mapper<Object, Text, IntWritable, AntTempEntit
 			throws IOException, InterruptedException {
 		// get the cache data
 		System.out.println("=====================MapperStep1.setup=========================");
-		Path[] path=DistributedCache.getLocalCacheFiles(context.getConfiguration());  
-		String str;
+		// Path[]
+		// path=DistributedCache.getLocalCacheFiles(context.getConfiguration());
+		//String str;
 		try {
-			str = HDFSUtil.getCacheStr(path[0]);
-			cache = GsonUtil.gson.fromJson(str, Cache.class);	//cache got
-			String str1 = HDFSUtil.readFile(DataPathEnum.PheromoneData.toString());
+			// str = HDFSUtil.getCacheStr(path[0]);
+			// cache = GsonUtil.gson.fromJson(str, Cache.class); //cache got
+			// get pheromone data from HDFS
+			String str1 = HDFSUtil.readFile(DataPathEnum.PheromoneData
+					.toString());
 			pheromoneData = GsonUtil.gson.fromJson(str1, PheromoneData.class);
-			//System.out.println("pheromoneData-->"+pheromoneData);
+			// System.out.println("pheromoneData-->"+pheromoneData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

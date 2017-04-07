@@ -18,8 +18,8 @@ public class Parameter {
     public static final double MU = 3.0;    //节约量影响因子
     /**影响因子**/
     public static double RHO = 0.8;   //信息素挥发率
-    public static final Integer ANT_NUM = 20;    //蚂蚁数量
-    public static final Integer ITER_NUM = 20;     //迭代数
+    public static final Integer ANT_NUM = 200;    //蚂蚁数量
+    public static final Integer ITER_NUM = 30;     //迭代数
     public static final double R0 = 0.5;    //用来控制转移规则的参数
     public static final double PHEROMONE_INIT = 1.0;    //信息素的初始值
     public static double PHEROMONE_MAX = 5.0;       //信息素最大值

@@ -18,7 +18,7 @@ public class AntTempEntity implements WritableComparable<AntTempEntity> {
 	private DoubleWritable cost;
 
 	public void readFields(DataInput input) throws IOException {
-		System.out.println("AntTempEntity---readFields");
+		//System.out.println("AntTempEntity---readFields");
 		///System.out.println("input-->"+input);
 		//System.out.println("ant-->"+ant);
 		//System.out.println("cost-->"+cost);

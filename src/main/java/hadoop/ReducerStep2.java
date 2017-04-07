@@ -21,8 +21,7 @@ public class ReducerStep2 extends
 	private BaseUpdateStrategy baseUpdateStrategy;  //信息素更新策略
 	protected void reduce(IntWritable key, Iterable<AntTempEntity> values,
 			Context context) throws IOException, InterruptedException {
-		System.out
-				.println("==================ReducerStep2.reduce-begin===================");
+		//System.out.println("==================ReducerStep2.reduce-begin===================");
 		// System.out.println("key--->"+key);
 		// System.out.println("values--->"+values);
 		// find the best solution
@@ -41,22 +40,16 @@ public class ReducerStep2 extends
 		bestAnt.updatePheromone();
 		context.write(null, new Text(GsonUtil.gson.toJson(bestAnt)));
 		//context.write(null, new Text(GsonUtil.gson.toJson(bestAnt)));
-		System.out.println("bestAnt--->"+bestAnt);
-		System.out.println("bestLength--->"+bestLength);
-        System.out.println("==================ReducerStep2.reduce-end===================");
+		//System.out.println("bestAnt--->"+bestAnt);
+		//System.out.println("bestLength--->"+bestLength);
+        //System.out.println("==================ReducerStep2.reduce-end===================");
 	}
 
 	@Override
 	protected void setup(Context context) throws IOException,
 			InterruptedException {
 		// TODO Auto-generated method stub
-		System.out.println("==================ReducerStep2.setup===================");
-		String str1;
-		try {
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		//System.out.println("==================ReducerStep2.setup===================");
 	}
 
 }

@@ -21,16 +21,8 @@ import acs.ACO;
  * Created by ab792 on 2017/3/6.
  */
 public class LaunchDriver {
-   /* public static void main(String[] args) throws Exception {
-        org.apache.log4j.LogManager.resetConfiguration();
-        org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
-        String fileName = "benchmark/solomon/C102.vrp";
-        ACO aco = new ACO();
-        aco.init(fileName);
-        aco.run();
-    }*/
-	
 	public static void main(String[] args) throws Exception {
+		long start = System.currentTimeMillis();
 		org.apache.log4j.LogManager.resetConfiguration();
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
         //PrintStream print=new PrintStream("logs.mylog.txt");  //写好输出位置文件；  
@@ -40,5 +32,7 @@ public class LaunchDriver {
 		aco.init(DataPathEnum.DATA_INPUT.toString());
 		aco.run();
 		System.out.println("LaunchDriver.main ===========end");
+		long end = System.currentTimeMillis();
+		System.out.println("during time-->"+(end-start));
     }
 }

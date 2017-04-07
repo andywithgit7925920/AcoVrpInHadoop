@@ -126,7 +126,7 @@ public class VRP {
         MatrixUtil.printMatrix(distance);
     }
 
-    public static void importDataFromSolomon(String filePath) throws URISyntaxException  {
+    public static void importDataFromSolomon(String filePath) throws URISyntaxException, IOException  {
         System.out.print("--importDataFromSolomon--");
         Configuration conf = new Configuration();
     	Double[] x_Axis = null;
@@ -135,8 +135,9 @@ public class VRP {
         FSDataInputStream FSin = null;
         InputStreamReader ireader = null;
         BufferedReader reader = null;
+        FileSystem fs = null;
         try{
-        	FileSystem fs = FileSystem.get(inputPath.toUri(),conf);
+        	fs = FileSystem.get(inputPath.toUri(),conf);
             if(!fs.exists(inputPath)){
             	LogUtil.logger.error("err file path!");
             	System.exit(1);
@@ -235,26 +236,22 @@ public class VRP {
             //System.out.println("=========savedQnuantity===========");
             //MatrixUtil.printMatrix(savedQnuantity);
             //System.out.println("读入数据完毕");
-            System.out.println("add data to cache");
+            //System.out.println("add data to cache");
             //add data to cache
-            Cache cache = new Cache();
-            cache.refresh();
+            //Cache cache = new Cache();
+            //cache.refresh();
             //create caches file in HDFS
-            String str = GsonUtil.gson.toJson(cache);
-            HDFSUtil.CreateFile(DataPathEnum.CACHE_PATH.toString(), str);
-            
+            //String str = GsonUtil.gson.toJson(cache);
+            //HDFSUtil.CreateFile(DataPathEnum.CACHE_PATH.toString(), str);
             //JobConf jobConf = new JobConf(VRP.class);
             //DistributedCache.addCacheFile(new URI(DataPathEnum.CACHE_PATH.toString()), jobConf);
         }catch(IOException e){
         	e.printStackTrace();
         }finally{
-        	try {
 				reader.close();
 				ireader.close();
 				FSin.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				fs.close();
         }
         
     }
