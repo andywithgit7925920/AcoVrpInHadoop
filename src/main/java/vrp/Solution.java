@@ -1,15 +1,19 @@
 package vrp;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import org.apache.hadoop.io.WritableComparable;
 
 /**
  * Created by ab792 on 2017/1/18.
  * 代表一个完整的解
  */
-public class Solution implements Serializable {
+public class Solution implements Serializable{
 
     private static final long serialVersionUID = 7857219508124941801L;
     private LinkedList<Truck> truckSols = new LinkedList<Truck>(); //卡车集合(路径集合)

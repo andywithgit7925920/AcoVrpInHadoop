@@ -1,5 +1,8 @@
 package acs;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.Serializable;
 
 import util.ArrayUtil;
@@ -10,9 +13,11 @@ import vrp.VRP;
 
 import java.util.*;
 
+import org.apache.hadoop.io.WritableComparable;
+
 import parameter.Parameter;
 
-public class Ant {
+public class Ant implements Serializable{
 	 private static final long serialVersionUID = -6878808733419080363L;
 	 	private int id;
 	    private Solution solution;
@@ -301,4 +306,5 @@ public class Ant {
 	                ", delta=" + Arrays.toString(delta) +
 	                '}';
 	    }
+
 }

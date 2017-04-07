@@ -1,5 +1,8 @@
 package vrp;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.Serializable;
 
 import util.DataUtil;
@@ -7,6 +10,8 @@ import util.MatrixUtil;
 import parameter.Parameter;
 
 import java.util.LinkedList;
+
+import org.apache.hadoop.io.WritableComparable;
 
 import static vrp.VRP.*;
 
@@ -605,4 +610,6 @@ public class Truck implements Serializable{
         cloneTruck.setCustomers((LinkedList<Integer>) customers.clone());
         return cloneTruck;
     }
+
+
 }

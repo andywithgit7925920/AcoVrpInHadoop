@@ -1,5 +1,6 @@
 package acs;
 
+import hadoop.AntTempEntity;
 import hadoop.MapperStep1;
 import hadoop.PheromoneData;
 import hadoop.ReducerStep2;
@@ -13,6 +14,7 @@ import updatestrategy.UpdateStrategy4Case2;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.filecache.DistributedCache;
@@ -29,6 +31,7 @@ import static vrp.VRP.*;
 import util.DataUtil;
 import util.GsonUtil;
 import util.HDFSUtil;
+import util.LogUtil;
 import util.StringUtil;
 import parameter.Parameter;
 import vrp.Solution;
@@ -54,14 +57,14 @@ public class ACO implements Serializable {
     private BaseUpdateStrategy baseUpdateStrategy;  //信息素更新策略
     private BaseStretegy stretegy;  //局部搜索策略
     private Solution pre3Solution = null;
-    //Gson gson = null;
+    int FINISHCounter;
 
     public ACO() {
         this.antNum = Parameter.ANT_NUM;
         ITER_NUM = Parameter.ITER_NUM;
         ants = new Ant[antNum];
         baseUpdateStrategy = new UpdateStrategy4Case1();
-        //gson = new Gson();
+        FINISHCounter = 0;
     }
 
 
@@ -115,6 +118,10 @@ public class ACO implements Serializable {
      * ACO的运行过程
      */
     public void run() throws Exception {
+    	int RHOCounter = 0;
+        FINISHCounter = 0;
+        //进行ITER_NUM次迭代
+        //for (int i = 0; i < ITER_NUM; i++) {
     	Configuration conf = new Configuration();
     	Job job = new Job(conf, "aco run");
     	job.setJarByClass(ACO.class);
@@ -122,19 +129,36 @@ public class ACO implements Serializable {
     	Path cachePath = new Path(DataPathEnum.CACHE_PATH.toString());
         DistributedCache.addCacheFile(cachePath.toUri(), job.getConfiguration());
     	/*----------mapper-----------*/
-    	job.setMapOutputKeyClass(Text.class);
-    	job.setMapOutputValueClass(IntWritable.class);
+    	job.setMapOutputKeyClass(IntWritable.class);
+    	job.setMapOutputValueClass(AntTempEntity.class);
         job.setMapperClass(MapperStep1.class);
 		job.setCombinerClass(ReducerStep2.class);  
         /*----------mapper-----------*/
+		job.setNumReduceTasks(1);  
         job.setReducerClass(ReducerStep2.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputKeyClass(NullWritable.class);
+        job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(DataPathEnum.ANT_COLONY_PATH.toString()));
         FileOutputFormat.setOutputPath(job, new Path(DataPathEnum.DATA_OUTPUT.toString()));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
         System.out.println("==================finish===================");
-
+        /*++RHOCounter;
+        ++FINISHCounter;
+        //初始化蚁群
+        initAntCommunity();
+        //如果三代以内，最优解的变化值在3之内，则更新RHO
+        if (RHOCounter > 3) {
+            RHOCounter = 0;
+            if (DataUtil.le(pre3Solution.calCost() - bestSolution.calCost(), 3.0)) {
+                updateRHO();
+            }
+            pre3Solution = bestSolution;
+        }
+        if (FINISHCounter >= Parameter.N) {
+            LogUtil.logger.info("FINISHCounter--->" + Parameter.N);
+            break;
+        }
+        }*/
         //System.exit(job.waitForCompletion(true) ? 0 : 1);
         /*int RHOCounter = 0;
         //进行ITER_NUM次迭代
