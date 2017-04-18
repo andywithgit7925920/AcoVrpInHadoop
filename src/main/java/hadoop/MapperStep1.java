@@ -41,9 +41,9 @@ public class MapperStep1 extends
 			String val = String.valueOf(value);
 			Ant ant = GsonUtil.gson.fromJson(val, Ant.class);
 			ant.traceRoad(pheromoneData.getPheromone());
-			//System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before"+ ant.getLength());
+			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---before"+ ant.getLength());
 			DefaultStretegy.improveSolution(ant);
-			//System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after"+ ant.getLength());
+			System.out.println("第" + ant.getId() + "只蚂蚁总路径长度---after"+ ant.getLength());
 			String antTmp = GsonUtil.gson.toJson(ant);
 			context.write(new IntWritable(1), new AntTempEntity(new Text(antTmp),
 					new DoubleWritable(ant.getLength())));

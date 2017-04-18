@@ -9,11 +9,13 @@ import java.util.LinkedList;
 
 import org.apache.hadoop.io.WritableComparable;
 
+import util.VrpTransportTemp;
+
 /**
  * Created by ab792 on 2017/1/18.
  * 代表一个完整的解
  */
-public class Solution implements Serializable{
+public class Solution implements Serializable {
 
     private static final long serialVersionUID = 7857219508124941801L;
     private LinkedList<Truck> truckSols = new LinkedList<Truck>(); //卡车集合(路径集合)
@@ -27,15 +29,18 @@ public class Solution implements Serializable{
     private Truck currentTruck; //当前车辆
     private int currentCicycle;     //当前在第几个循环（即第几辆车）
     private boolean isGoodSolution; //是否是一个好的解
+    private int iterNum;    //计算的迭代次数
+    private VrpTransportTemp vrpTransportTemp;
 
-    public Solution() {
+    public Solution(VrpTransportTemp vrpTransportTemp) {
+        this.vrpTransportTemp = vrpTransportTemp;
         currentCicycle = 1;
-        Truck firstTruck = new Truck(currentCicycle);
+        Truck firstTruck = new Truck(currentCicycle, vrpTransportTemp);
         truckSols.add(firstTruck);
         currentTruck = firstTruck;
     }
 
-    public Solution(LinkedList<Truck> truckSols) {
+    private Solution(LinkedList<Truck> truckSols) {
         this.truckSols = truckSols;
     }
 
@@ -58,19 +63,14 @@ public class Solution implements Serializable{
      * @param currentCus
      */
     public void addCus(int currentCus) {
-    	//System.out.println("====solution.addCus====");
-    	//System.out.println("currentCus====>"+currentCus);
         if (currentCus != 0) {
-        	//System.out.println("1111111====");
             if (currentCicycle > truckSols.size()) {
-                Truck truck = new Truck(currentCicycle);
+                Truck truck = new Truck(currentCicycle, vrpTransportTemp);
                 truck.addCus(currentCus);
                 addTruck(truck);
             } else {
-            	//System.out.println("222222222====");
                 truckSols.get(currentCicycle - 1).addCus(currentCus);
             }
-            //System.out.println("solutiuon====>"+this);
         }
     }
 
@@ -247,6 +247,14 @@ public class Solution implements Serializable{
         return lastTruck;
     }
 
+    public void setIterNum(int iterNum) {
+        this.iterNum = iterNum;
+    }
+
+    public int getIterNum() {
+        return iterNum;
+    }
+
     public int getCurrentCicycle() {
         return currentCicycle;
     }
@@ -260,18 +268,12 @@ public class Solution implements Serializable{
     }
 
     public Truck getCurrentTruck() {
-    	//System.out.println("=============Solution.getCurrentTruck============");
         /*******************/
-    	//System.out.println("currentCicycle->"+currentCicycle);
-    	//System.out.println("truckSols.size()->"+truckSols.size());
         if (currentCicycle > truckSols.size()) {
-            Truck truck = new Truck(currentCicycle);
+            Truck truck = new Truck(currentCicycle, vrpTransportTemp);
             currentTruck = truck;
             addTruck(truck);
         }
-        currentTruck = truckSols.get(truckSols.size()-1);
-        //System.out.println("this--->"+this);
-        //System.out.print("currentTruck--->"+currentTruck);
         return currentTruck;
     }
 
@@ -296,7 +298,7 @@ public class Solution implements Serializable{
      * @return
      */
     public Solution clone() {
-        Solution cloneSolution = new Solution();
+        Solution cloneSolution = new Solution(vrpTransportTemp);
         LinkedList<Truck> cloneTruckSols = new LinkedList<Truck>();
         for (Truck truck : truckSols) {
             cloneTruckSols.add(truck.clone());
@@ -309,7 +311,7 @@ public class Solution implements Serializable{
      * 刪除空的货车
      */
     public void refresh() {
-        //System.out.println("Solution.refresh");
+        //System.out.println("Solution.refreshByCom1");
         Iterator<Truck> it = truckSols.iterator();
         while (it.hasNext()) {
             Truck truck = it.next();

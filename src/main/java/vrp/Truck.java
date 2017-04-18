@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import util.DataUtil;
 import util.MatrixUtil;
+import util.VrpTransportTemp;
 import parameter.Parameter;
 
 import java.util.LinkedList;
@@ -42,16 +43,23 @@ public class Truck implements Serializable{
     private double width;   //长
     private double length;  //宽
     private double maxDistance;     //限制的最长距离
-    public static double capacity;
+    private double capacity;
 
+    private VrpTransportTemp vrpTransportTemp;
+    private Parameter parameter = new Parameter();
     /**************暂未使用****************/
 
 
-    public Truck(int id) {
+    private Truck(int id) {
         this.id = id;
         nowCapacity = 0;
         currentCus = 0;
         nowServiceTime = 0;
+    }
+    public Truck(int id, VrpTransportTemp vrpTransportTemp){
+        this(id);
+        this.vrpTransportTemp = vrpTransportTemp;
+        this.capacity = vrpTransportTemp.capacity;
     }
 
     /**
@@ -75,26 +83,26 @@ public class Truck implements Serializable{
     public boolean isOverTimeForSoft() {
         double nowTime = 0.0;
         if (customers.size() > 0) {
-            nowTime += distance[0][getFirstCus()];
+            nowTime += vrpTransportTemp.distance[0][getFirstCus()];
             for (int i = 0; i < customers.size() - 1; i++) {
                 int curCustomer = customers.get(i);
-                if (nowTime > VRP.time[curCustomer][1]) {
+                if (nowTime > vrpTransportTemp.time[curCustomer][1]) {
                     return true;
                 }
                 //如果当前时间没达到ET，则需要等到ET才可以开始服务
-                nowTime = (nowTime < VRP.time[curCustomer][0]) ? VRP.time[curCustomer][0] : nowTime;
-                nowTime += VRP.serviceTime[curCustomer];
+                nowTime = (nowTime < vrpTransportTemp.time[curCustomer][0]) ? vrpTransportTemp.time[curCustomer][0] : nowTime;
+                nowTime += vrpTransportTemp.serviceTime[curCustomer];
                 int nextCustomer = customers.get(i + 1);
-                nowTime += distance[curCustomer][nextCustomer];
+                nowTime += vrpTransportTemp.distance[curCustomer][nextCustomer];
             }
-            if (nowTime > VRP.time[getLastCus()][1]) {
+            if (nowTime > vrpTransportTemp.time[getLastCus()][1]) {
                 return true;
             }
             //如果当前时间没达到ET，则需要等到ET才可以开始服务
-            nowTime = (nowTime < VRP.time[getLastCus()][0]) ? VRP.time[getLastCus()][0] : nowTime;
-            nowTime += VRP.serviceTime[getLastCus()];
-            nowTime += distance[getLastCus()][0];
-            if (nowTime > VRP.time[0][1]) {
+            nowTime = (nowTime < vrpTransportTemp.time[getLastCus()][0]) ? vrpTransportTemp.time[getLastCus()][0] : nowTime;
+            nowTime += vrpTransportTemp.serviceTime[getLastCus()];
+            nowTime += vrpTransportTemp.distance[getLastCus()][0];
+            if (nowTime > vrpTransportTemp.time[0][1]) {
                 return true;
             }
             return false;
@@ -111,26 +119,26 @@ public class Truck implements Serializable{
     public boolean isOverTimeForHard() {
         double nowTime = 0.0;
         if (customers.size() > 0) {
-            nowTime += distance[0][getFirstCus()];
+            nowTime += vrpTransportTemp.distance[0][getFirstCus()];
             for (int i = 0; i < customers.size() - 1; i++) {
                 int curCustomer = customers.get(i);
-                if (nowTime > VRP.time[curCustomer][1] || nowTime < VRP.time[curCustomer][0]) {
+                if (nowTime > vrpTransportTemp.time[curCustomer][1] || nowTime < vrpTransportTemp.time[curCustomer][0]) {
                     return true;
                 }
                 //如果当前时间没达到ET，则需要等到ET才可以开始服务
-                nowTime = (nowTime < VRP.time[curCustomer][0]) ? VRP.time[curCustomer][0] : nowTime;
-                nowTime += VRP.serviceTime[curCustomer];
+                nowTime = (nowTime < vrpTransportTemp.time[curCustomer][0]) ? vrpTransportTemp.time[curCustomer][0] : nowTime;
+                nowTime += vrpTransportTemp.serviceTime[curCustomer];
                 int nextCustomer = customers.get(i + 1);
-                nowTime += distance[curCustomer][nextCustomer];
+                nowTime += vrpTransportTemp.distance[curCustomer][nextCustomer];
             }
-            if (nowTime > VRP.time[getLastCus()][1] || nowTime < VRP.time[getLastCus()][0]) {
+            if (nowTime > vrpTransportTemp.time[getLastCus()][1] || nowTime < vrpTransportTemp.time[getLastCus()][0]) {
                 return true;
             }
             //如果当前时间没达到ET，则需要等到ET才可以开始服务
-            nowTime = (nowTime < VRP.time[getLastCus()][0]) ? VRP.time[getLastCus()][0] : nowTime;
-            nowTime += VRP.serviceTime[getLastCus()];
-            nowTime += distance[getLastCus()][0];
-            if (nowTime > VRP.time[0][1]) {
+            nowTime = (nowTime < vrpTransportTemp.time[getLastCus()][0]) ? vrpTransportTemp.time[getLastCus()][0] : nowTime;
+            nowTime += vrpTransportTemp.serviceTime[getLastCus()];
+            nowTime += vrpTransportTemp.distance[getLastCus()][0];
+            if (nowTime > vrpTransportTemp.time[0][1]) {
                 return true;
             }
             return false;
@@ -148,26 +156,26 @@ public class Truck implements Serializable{
     public boolean isOverTime() {
         double nowTime = 0.0;
         if (customers.size() > 0) {
-            nowTime += distance[0][getFirstCus()];
+            nowTime += vrpTransportTemp.distance[0][getFirstCus()];
             for (int i = 0; i < customers.size() - 1; i++) {
                 int curCustomer = customers.get(i);
-                if (nowTime > VRP.time[curCustomer][1]) {
+                if (nowTime > vrpTransportTemp.time[curCustomer][1]) {
                     return true;
                 }
                 //如果当前时间没达到ET，则需要等到ET才可以开始服务
-                nowTime = (nowTime < VRP.time[curCustomer][0]) ? VRP.time[curCustomer][0] : nowTime;
-                nowTime += VRP.serviceTime[curCustomer];
+                nowTime = (nowTime < vrpTransportTemp.time[curCustomer][0]) ? vrpTransportTemp.time[curCustomer][0] : nowTime;
+                nowTime += vrpTransportTemp.serviceTime[curCustomer];
                 int nextCustomer = customers.get(i + 1);
-                nowTime += distance[curCustomer][nextCustomer];
+                nowTime += vrpTransportTemp.distance[curCustomer][nextCustomer];
             }
-            if (nowTime > VRP.time[getLastCus()][1]) {
+            if (nowTime > vrpTransportTemp.time[getLastCus()][1]) {
                 return true;
             }
             //如果当前时间没达到ET，则需要等到ET才可以开始服务
-            nowTime = (nowTime < VRP.time[getLastCus()][0]) ? VRP.time[getLastCus()][0] : nowTime;
-            nowTime += VRP.serviceTime[getLastCus()];
-            nowTime += distance[getLastCus()][0];
-            if (nowTime > VRP.time[0][1]) {
+            nowTime = (nowTime < vrpTransportTemp.time[getLastCus()][0]) ? vrpTransportTemp.time[getLastCus()][0] : nowTime;
+            nowTime += vrpTransportTemp.serviceTime[getLastCus()];
+            nowTime += vrpTransportTemp.distance[getLastCus()][0];
+            if (nowTime > vrpTransportTemp.time[0][1]) {
                 return true;
             }
             return false;
@@ -183,6 +191,7 @@ public class Truck implements Serializable{
      * @return
      */
     public boolean isGoodTruckForHard() {
+
         return !isOverTimeForHard() && !isOverLoad();
     }
 
@@ -221,7 +230,7 @@ public class Truck implements Serializable{
         customers.add(cus);
         currentCus = cus;   //更新当前城市
         //更新当前载重量
-        adddNowCapacity(clientDemandArr[cus]);
+        adddNowCapacity(vrpTransportTemp.clientDemandArr[cus]);
     }
 
     /**
@@ -229,7 +238,7 @@ public class Truck implements Serializable{
      */
     public void removeLastCus() {
         if (customers.size() > 0) {
-            removeNowCapacity(clientDemandArr[customers.getLast()]);
+            removeNowCapacity(vrpTransportTemp.clientDemandArr[customers.getLast()]);
             customers.removeLast();
         }
 
@@ -267,7 +276,7 @@ public class Truck implements Serializable{
     public boolean checkNowCusForHard(int nowCus) {
         //System.out.println("====Truck.checkNowCusForHard begin====");
         refreshNowCap();
-        boolean flag4Capacity = capacity >= nowCapacity + clientDemandArr[nowCus];
+        boolean flag4Capacity = capacity >= nowCapacity + vrpTransportTemp.clientDemandArr[nowCus];
         addCus(nowCus);
         boolean flag4Time = !isOverTimeForHard();
         if (flag4Capacity && flag4Time) {
@@ -291,7 +300,7 @@ public class Truck implements Serializable{
      */
     public boolean checkNowCusForSoft(int nowCus) {
         refreshNowCap();
-        return capacity >= nowCapacity + clientDemandArr[nowCus];
+        return capacity >= nowCapacity + vrpTransportTemp.clientDemandArr[nowCus];
     }
 
     /**
@@ -300,7 +309,7 @@ public class Truck implements Serializable{
      */
     public boolean checkNowCus(int nowCus) {
         refreshNowCap();
-        boolean flag4Capacity = capacity >= nowCapacity + clientDemandArr[nowCus];
+        boolean flag4Capacity = capacity >= nowCapacity + vrpTransportTemp.clientDemandArr[nowCus];
         addCus(nowCus);
         boolean flag4Time = !isOverTime();
         if (flag4Capacity && flag4Time) {
@@ -318,14 +327,13 @@ public class Truck implements Serializable{
      * @return
      */
     public double calCost() {
-    	//System.out.println("Truck.calCost");
         double len = 0.0;
         if (customers.size() > 0) {
-            len += distance[0][customers.getFirst()];
+            len += vrpTransportTemp.distance[0][customers.getFirst()];
             for (int i = 0; i + 1 < customers.size(); i++) {
-                len += distance[customers.get(i).intValue()][customers.get(i + 1).intValue()];
+                len += vrpTransportTemp.distance[customers.get(i).intValue()][customers.get(i + 1).intValue()];
             }
-            len += distance[customers.getLast().intValue()][0];
+            len += vrpTransportTemp.distance[customers.getLast().intValue()][0];
         }
         return len;
     }
@@ -339,31 +347,31 @@ public class Truck implements Serializable{
         double punishCost = 0.0;
         double nowTime = 0.0;
         if (customers.size() > 0) {
-            nowTime += distance[0][getFirstCus()];
+            nowTime += vrpTransportTemp.distance[0][getFirstCus()];
             for (int i = 0; i < customers.size() - 1; i++) {
                 int curCustomer = customers.get(i);
-                if (nowTime > VRP.time[curCustomer][1]) {
-                    punishCost += Parameter.PUNISH_RIGHT * (nowTime - VRP.time[curCustomer][1]);
-                } else if (nowTime < VRP.time[curCustomer][0]) {
-                    punishCost += Parameter.PUNISH_LEFT * (VRP.time[curCustomer][0] - nowTime);
+                if (nowTime > vrpTransportTemp.time[curCustomer][1]) {
+                    punishCost += parameter.PUNISH_RIGHT * (nowTime - vrpTransportTemp.time[curCustomer][1]);
+                } else if (nowTime < vrpTransportTemp.time[curCustomer][0]) {
+                    punishCost += parameter.PUNISH_LEFT * (vrpTransportTemp.time[curCustomer][0] - nowTime);
                 }
                 //如果当前时间没达到ET，则需要等到ET才可以开始服务
-                nowTime = (nowTime < VRP.time[curCustomer][0]) ? VRP.time[curCustomer][0] : nowTime;
-                nowTime += VRP.serviceTime[curCustomer];
+                nowTime = (nowTime < vrpTransportTemp.time[curCustomer][0]) ? vrpTransportTemp.time[curCustomer][0] : nowTime;
+                nowTime += vrpTransportTemp.serviceTime[curCustomer];
                 int nextCustomer = customers.get(i + 1);
-                nowTime += distance[curCustomer][nextCustomer];
+                nowTime += vrpTransportTemp.distance[curCustomer][nextCustomer];
             }
-            if (nowTime > VRP.time[getLastCus()][1]) {
-                punishCost += Parameter.PUNISH_RIGHT * (nowTime - VRP.time[getLastCus()][1]);
-            } else if (nowTime < VRP.time[getLastCus()][0]) {
-                punishCost += Parameter.PUNISH_LEFT * (VRP.time[getLastCus()][0] - nowTime);
+            if (nowTime > vrpTransportTemp.time[getLastCus()][1]) {
+                punishCost += parameter.PUNISH_RIGHT * (nowTime - vrpTransportTemp.time[getLastCus()][1]);
+            } else if (nowTime < vrpTransportTemp.time[getLastCus()][0]) {
+                punishCost += parameter.PUNISH_LEFT * (vrpTransportTemp.time[getLastCus()][0] - nowTime);
             }
             //如果当前时间没达到ET，则需要等到ET才可以开始服务
-            nowTime = (nowTime < VRP.time[getLastCus()][0]) ? VRP.time[getLastCus()][0] : nowTime;
-            nowTime += VRP.serviceTime[getLastCus()];
-            nowTime += distance[getLastCus()][0];
-            if (nowTime > VRP.time[0][1]) {
-                punishCost += Parameter.PUNISH_RIGHT * (nowTime - VRP.time[0][1]);
+            nowTime = (nowTime < vrpTransportTemp.time[getLastCus()][0]) ? vrpTransportTemp.time[getLastCus()][0] : nowTime;
+            nowTime += vrpTransportTemp.serviceTime[getLastCus()];
+            nowTime += vrpTransportTemp.distance[getLastCus()][0];
+            if (nowTime > vrpTransportTemp.time[0][1]) {
+                punishCost += parameter.PUNISH_RIGHT * (nowTime - vrpTransportTemp.time[0][1]);
             }
         }
         return punishCost;
@@ -393,7 +401,7 @@ public class Truck implements Serializable{
         isOverLoad = isOverLoad();
         isOverTime = isOverTimeForHard();
         cusNum = customers.size();
-        penalty = calCostWithTWPunish();
+        /*penalty = calCostWithTWPunish();*/
         oriCost = calCost();
         totalCost = penalty + oriCost;
         return "Truck{" +
@@ -404,7 +412,7 @@ public class Truck implements Serializable{
                 ", nowCapacity=" + nowCapacity +
                 ", customers=" + customers +
                 ", cusNum=" + cusNum +
-                ", penalty=" + penalty +
+                /*", penalty=" + penalty +*/
                 ", isOverLoad=" + isOverLoad +
                 ", isOverTime=" + isOverTime +
                 '}';
@@ -552,7 +560,7 @@ public class Truck implements Serializable{
         nowCapacity = 0.0;
         if (!customers.isEmpty()) {
             for (Integer cus : customers) {
-                adddNowCapacity(clientDemandArr[cus]);
+                adddNowCapacity(vrpTransportTemp.clientDemandArr[cus]);
             }
         }
     }
@@ -565,18 +573,18 @@ public class Truck implements Serializable{
     public double calNowServiceTime() {
         nowServiceTime = 0.0;
         if (customers.size() > 0) {
-            nowServiceTime += distance[0][getFirstCus()];
+            nowServiceTime += vrpTransportTemp.distance[0][getFirstCus()];
             for (int i = 0; i < customers.size() - 1; i++) {
                 int curCustomer = customers.get(i);
                 //如果当前时间没达到ET，则需要等到ET才可以开始服务
-                nowServiceTime = (nowServiceTime < VRP.time[curCustomer][0]) ? VRP.time[curCustomer][0] : nowServiceTime;
-                nowServiceTime += VRP.serviceTime[curCustomer];
+                nowServiceTime = (nowServiceTime < vrpTransportTemp.time[curCustomer][0]) ? vrpTransportTemp.time[curCustomer][0] : nowServiceTime;
+                nowServiceTime += vrpTransportTemp.serviceTime[curCustomer];
                 int nextCustomer = customers.get(i + 1);
-                nowServiceTime += distance[curCustomer][nextCustomer];
+                nowServiceTime += vrpTransportTemp.distance[curCustomer][nextCustomer];
             }
             //如果当前时间没达到ET，则需要等到ET才可以开始服务
-            nowServiceTime = (nowServiceTime < VRP.time[getLastCus()][0]) ? VRP.time[getLastCus()][0] : nowServiceTime;
-            nowServiceTime += VRP.serviceTime[getLastCus()];
+            nowServiceTime = (nowServiceTime < vrpTransportTemp.time[getLastCus()][0]) ? vrpTransportTemp.time[getLastCus()][0] : nowServiceTime;
+            nowServiceTime += vrpTransportTemp.serviceTime[getLastCus()];
         }
         return nowServiceTime;
     }
@@ -611,5 +619,7 @@ public class Truck implements Serializable{
         return cloneTruck;
     }
 
-
+    public VrpTransportTemp getVrpTransportTemp() {
+        return vrpTransportTemp;
+    }
 }

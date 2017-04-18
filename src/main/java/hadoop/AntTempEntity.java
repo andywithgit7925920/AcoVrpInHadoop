@@ -27,7 +27,7 @@ public class AntTempEntity implements WritableComparable<AntTempEntity> {
 	}
 
 	public void write(DataOutput output) throws IOException {
-		System.out.println("AntTempEntity---write");
+		//System.out.println("AntTempEntity---write");
 		ant.write(output);
 		cost.write(output);
 	}

@@ -27,11 +27,13 @@ public class LaunchDriver {
         org.apache.log4j.PropertyConfigurator.configure("log4j.properties");
         //PrintStream print=new PrintStream("logs.mylog.txt");  //写好输出位置文件；  
         //System.setOut(print);  
-        System.out.println("LaunchDriver.main ===========begin");
+        //System.out.println("LaunchDriver.main ===========begin");
 		ACO aco = new ACO();
-		aco.init(DataPathEnum.DATA_INPUT.toString());
+		//aco.init(DataPathEnum.DATA_INPUT.toString());
+		String filePath = "benchmark/solomon/C101.vrp";
+		aco.init(filePath);
 		aco.run();
-		System.out.println("LaunchDriver.main ===========end");
+		//System.out.println("LaunchDriver.main ===========end");
 		long end = System.currentTimeMillis();
 		System.out.println("during time-->"+(end-start));
     }
